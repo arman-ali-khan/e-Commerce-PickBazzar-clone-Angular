@@ -1,0 +1,93 @@
+<div>
+  <div class="flex items-center justify-between mb-6 border-b pb-4">
+    <h1 class="text-2xl font-bold text-gray-800">Address Manager</h1>
+    @if (!isFormVisible()) {
+      <button (click)="showAddForm()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-brand hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand">
+        Add New Address
+      </button>
+    }
+  </div>
+
+  <!-- Add/Edit Form -->
+  @if (isFormVisible()) {
+    <div class="bg-gray-50 p-6 rounded-lg mb-8 border">
+      <h2 class="text-xl font-semibold text-gray-700 mb-4">{{ editingAddressId() ? 'Edit Address' : 'Add a New Address' }}</h2>
+      <form [formGroup]="addressForm" (ngSubmit)="onSubmit()" novalidate>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Address Type</label>
+            <div class="mt-2 flex space-x-4">
+              <label class="inline-flex items-center">
+                <input type="radio" formControlName="type" value="Home" class="form-radio text-brand focus:ring-brand">
+                <span class="ml-2">Home</span>
+              </label>
+              <label class="inline-flex items-center">
+                <input type="radio" formControlName="type" value="Office" class="form-radio text-brand focus:ring-brand">
+                <span class="ml-2">Office</span>
+              </label>
+            </div>
+          </div>
+          <div class="md:col-span-2">
+            <label for="street" class="block text-sm font-medium text-gray-700">Street Address</label>
+            <input type="text" id="street" formControlName="street" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand focus:border-brand sm:text-sm">
+          </div>
+          <div>
+            <label for="city" class="block text-sm font-medium text-gray-700">City</label>
+            <input type="text" id="city" formControlName="city" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand focus:border-brand sm:text-sm">
+          </div>
+          <div>
+            <label for="state" class="block text-sm font-medium text-gray-700">State / Province</label>
+            <input type="text" id="state" formControlName="state" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand focus:border-brand sm:text-sm">
+          </div>
+          <div>
+            <label for="zip" class="block text-sm font-medium text-gray-700">ZIP / Postal Code</label>
+            <input type="text" id="zip" formControlName="zip" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand focus:border-brand sm:text-sm">
+          </div>
+          <div>
+            <label for="country" class="block text-sm font-medium text-gray-700">Country</label>
+            <input type="text" id="country" formControlName="country" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand focus:border-brand sm:text-sm">
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end space-x-3">
+          <button type="button" (click)="hideForm()" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">Cancel</button>
+          <button type="submit" [disabled]="addressForm.invalid" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand hover:bg-brand-dark disabled:bg-gray-300 disabled:cursor-not-allowed">
+            {{ editingAddressId() ? 'Update Address' : 'Save Address' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Address List -->
+  @if (addresses().length > 0) {
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      @for (address of addresses(); track address.id) {
+        <div class="border rounded-lg p-5 flex">
+          <div class="flex-shrink-0 mr-4">
+            @if (address.type === 'Home') {
+              <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            } @else {
+              <svg class="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+            }
+          </div>
+          <div class="flex-grow text-sm">
+            <h3 class="font-bold text-gray-800 text-base mb-1">{{ address.type }}</h3>
+            <p class="text-gray-600">{{ address.street }}</p>
+            <p class="text-gray-600">{{ address.city }}, {{ address.state }} {{ address.zip }}</p>
+            <p class="text-gray-600">{{ address.country }}</p>
+            <div class="mt-3 space-x-3">
+              <button (click)="showEditForm(address)" class="font-medium text-brand hover:text-brand-dark">Edit</button>
+              <button (click)="onDelete(address.id)" class="font-medium text-red-600 hover:text-red-800">Delete</button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (!isFormVisible()) {
+    <div class="text-center py-16">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No addresses saved</h3>
+      <p class="mt-1 text-sm text-gray-500">Add a new address to get started.</p>
+    </div>
+  }
+</div>

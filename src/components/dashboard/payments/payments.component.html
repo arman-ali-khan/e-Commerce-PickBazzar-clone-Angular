@@ -1,0 +1,29 @@
+<div>
+  <div class="flex items-center justify-between mb-6 border-b pb-4">
+    <h1 class="text-2xl font-bold text-gray-800">Payment Methods</h1>
+    <button (click)="addPaymentMethod()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-brand hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand">
+      Add New Card
+    </button>
+  </div>
+
+  <div class="space-y-4">
+    @for (method of paymentMethods(); track method.last4) {
+      <div class="p-4 border rounded-lg flex items-center justify-between">
+        <div class="flex items-center">
+          @if (method.type === 'Visa') {
+            <svg class="w-10 h-10 mr-4" viewBox="0 0 38 24"><path d="M35 0H3C1.3 0 0 1.3 0 3v18c0 1.7 1.4 3 3 3h32c1.7 0 3-1.3 3-3V3c0-1.7-1.4-3-3-3z" fill="#1A1F71"/></svg>
+          } @else {
+             <svg class="w-10 h-10 mr-4" viewBox="0 0 38 24"><path d="M35 0H3C1.3 0 0 1.3 0 3v18c0 1.7 1.4 3 3 3h32c1.7 0 3-1.3 3-3V3c0-1.7-1.4-3-3-3z" fill="#EB001B"/><path d="M12.9 17.5c-2.4-2.2-2.4-5.8 0-8l-3.3-3.3c-3.7 3.7-3.7 9.8 0 13.5l3.3-2.2z" fill="#F79E1B"/><circle cx="25" cy="12" r="7" fill="#F79E1B"/></svg>
+          }
+          <div>
+            <p class="font-semibold text-gray-800">{{ method.type }} ending in {{ method.last4 }}</p>
+            <p class="text-sm text-gray-500">Expires {{ method.expiry }}</p>
+          </div>
+        </div>
+        <div>
+          <button class="text-sm font-medium text-red-600 hover:text-red-800">Remove</button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

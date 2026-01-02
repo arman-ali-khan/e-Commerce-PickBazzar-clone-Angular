@@ -1,0 +1,31 @@
+
+<div>
+  <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">What Our Customers Say</h2>
+  <div #reviewsSwiper class="swiper-container">
+    <div class="swiper-wrapper py-8">
+      @for(review of reviews; track review.name) {
+        <div class="swiper-slide h-auto">
+          <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex flex-col h-full">
+            <div class="flex items-center mb-4">
+              <img [ngSrc]="review.avatar" alt="{{review.name}}" width="48" height="48" class="w-12 h-12 rounded-full mr-4">
+              <div>
+                <h4 class="font-semibold text-gray-800">{{review.name}}</h4>
+                <div class="flex items-center text-yellow-400">
+                  @for (star of getStarArray(review.rating); track $index) {
+                    <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                  }
+                  @for (star of getEmptyStarArray(review.rating); track $index) {
+                     <svg class="w-4 h-4 fill-current text-gray-300" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
+                  }
+                </div>
+              </div>
+            </div>
+            <p class="text-gray-600 text-sm flex-grow">"{{review.comment}}"</p>
+          </div>
+        </div>
+      }
+    </div>
+    <!-- Add Pagination -->
+    <div class="swiper-pagination !relative !bottom-0 mt-6"></div>
+  </div>
+</div>

@@ -1,0 +1,19 @@
+<div class="container mx-auto px-4 py-12">
+  <div class="text-center mb-10">
+    <h1 class="text-4xl font-bold text-gray-800">Shop by Category</h1>
+    <p class="text-gray-500 mt-2">Explore our wide range of products across all categories.</p>
+  </div>
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+    @for (category of categories; track category.name) {
+      <a 
+        [routerLink]="['/store']" 
+        [queryParams]="{ category: category.name }"
+        class="flex flex-col items-center justify-center p-6 bg-white rounded-lg shadow-sm border border-gray-100 group transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-brand">
+        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center text-4xl group-hover:bg-brand group-hover:text-white transition-colors duration-300">
+          {{ category.icon }}
+        </div>
+        <span class="mt-4 text-md font-medium text-gray-700 group-hover:text-brand transition-colors duration-300">{{ category.name }}</span>
+      </a>
+    }
+  </div>
+</div>

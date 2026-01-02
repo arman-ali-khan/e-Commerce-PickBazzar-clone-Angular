@@ -1,0 +1,137 @@
+<div class="bg-white">
+  <div class="container mx-auto px-4 py-12 lg:py-20">
+    <h1 class="text-3xl lg:text-4xl font-bold text-center text-gray-800 mb-10">Payment</h1>
+
+    @if (cartItems().length > 0 && shippingDetails(); as details) {
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        
+        <!-- Payment Options -->
+        <div class="lg:col-span-7">
+          <section>
+            <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Choose Payment Method</h2>
+            <div class="space-y-4">
+              <!-- Bangladeshi Mobile Banking -->
+              <div class="border rounded-lg p-4">
+                <h3 class="font-medium mb-3">Mobile Banking</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <!-- bKash -->
+                  <div 
+                    (click)="selectPaymentMethod('bKash')"
+                    class="p-4 border rounded-lg flex flex-col items-center justify-center cursor-pointer transition-all"
+                    [class.border-brand]="selectedPaymentMethod() === 'bKash'"
+                    [class.ring-2]="selectedPaymentMethod() === 'bKash'"
+                    [class.ring-brand]="selectedPaymentMethod() === 'bKash'">
+                    <img ngSrc="https://logowik.com/content/uploads/images/bkash-logo-83578.jpg" alt="bKash" class="h-10 mb-2 object-contain" width="100" height="40">
+                    <span class="text-sm font-medium">bKash</span>
+                  </div>
+                  <!-- Nagad -->
+                  <div 
+                    (click)="selectPaymentMethod('Nagad')"
+                    class="p-4 border rounded-lg flex flex-col items-center justify-center cursor-pointer transition-all"
+                    [class.border-brand]="selectedPaymentMethod() === 'Nagad'"
+                    [class.ring-2]="selectedPaymentMethod() === 'Nagad'"
+                    [class.ring-brand]="selectedPaymentMethod() === 'Nagad'">
+                    <img ngSrc="https://media.licdn.com/dms/image/D5612AQE88g-v85eGMA/article-cover_image-shrink_600_2000/0/1690186295697?e=2147483647&v=beta&t=MUm03r6FQQ8Cg2Rk7T312tg2V5Uv2kZVZ3nKk3s72Xw" alt="Nagad" class="h-10 mb-2 object-contain" width="100" height="40">
+                    <span class="text-sm font-medium">Nagad</span>
+                  </div>
+                  <!-- Rocket -->
+                  <div 
+                    (click)="selectPaymentMethod('Rocket')"
+                    class="p-4 border rounded-lg flex flex-col items-center justify-center cursor-pointer transition-all"
+                    [class.border-brand]="selectedPaymentMethod() === 'Rocket'"
+                    [class.ring-2]="selectedPaymentMethod() === 'Rocket'"
+                    [class.ring-brand]="selectedPaymentMethod() === 'Rocket'">
+                    <img ngSrc="https://yt3.googleusercontent.com/ytc/AIdro_kU2a2a095i34n2sQ-iT49pQsfq-c_NquIe_2a-=s900-c-k-c0x00ffffff-no-rj" alt="Rocket" class="h-10 mb-2 object-contain" width="100" height="40">
+                    <span class="text-sm font-medium">Rocket</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Cash on Delivery -->
+              <div 
+                (click)="selectPaymentMethod('COD')"
+                class="border rounded-lg p-4 flex items-center cursor-pointer transition-all"
+                [class.border-brand]="selectedPaymentMethod() === 'COD'"
+                [class.ring-2]="selectedPaymentMethod() === 'COD'"
+                [class.ring-brand]="selectedPaymentMethod() === 'COD'">
+                <div class="flex-shrink-0">
+                  <svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                </div>
+                <div class="ml-4">
+                    <h3 class="font-medium">Cash on Delivery</h3>
+                    <p class="text-sm text-gray-500">Pay with cash upon delivery.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+          <div class="mt-10">
+              <button (click)="confirmPayment()" class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                Confirm Payment ({{ (cartTotal() + shippingCost) | currency }})
+              </button>
+          </div>
+        </div>
+
+        <!-- Order Summary & Shipping Details -->
+        <div class="lg:col-span-5">
+          <div class="bg-gray-50 rounded-lg p-6 sticky top-24">
+            <!-- Shipping Details -->
+            <div class="mb-6 pb-6 border-b">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4">Shipping To</h2>
+                <div class="text-sm text-gray-600 space-y-1">
+                    <p class="font-medium">{{ details.firstName }} {{ details.lastName }}</p>
+                    <p>{{ details.address }}</p>
+                    <p>{{ details.city }}, {{ details.state }} {{ details.zip }}</p>
+                    <p>{{ details.email }}</p>
+                </div>
+                <a routerLink="/checkout" class="text-sm text-brand hover:underline mt-2 inline-block">Edit Shipping</a>
+            </div>
+            
+            <!-- Order Summary -->
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">Order Summary</h2>
+            <div class="space-y-4 max-h-60 overflow-y-auto pr-2">
+              @for(item of cartItems(); track item.cartItemId) {
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center">
+                    <div class="relative">
+                      <img [ngSrc]="item.imageUrl" [alt]="item.name" width="64" height="64" class="w-16 h-16 rounded-md object-cover">
+                      <span class="absolute -top-2 -right-2 bg-brand text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{{ item.quantity }}</span>
+                    </div>
+                    <div class="ml-4">
+                      <p class="font-semibold text-gray-800">{{ item.name }}</p>
+                      @let variantString = getVariantString(item);
+                      @if (variantString) {
+                        <div class="text-xs text-gray-500 capitalize">{{ variantString }}</div>
+                      }
+                    </div>
+                  </div>
+                  <p class="font-semibold">{{ (item.price * item.quantity) | currency }}</p>
+                </div>
+              }
+            </div>
+            <div class="mt-6 border-t pt-6 space-y-2">
+              <div class="flex justify-between">
+                <p>Subtotal</p>
+                <p class="font-semibold">{{ cartTotal() | currency }}</p>
+              </div>
+              <div class="flex justify-between">
+                <p>Shipping</p>
+                <p class="font-semibold">{{ shippingCost | currency }}</p>
+              </div>
+              <div class="flex justify-between text-lg font-bold text-gray-800 mt-2 border-t pt-2">
+                <p>Total</p>
+                <p>{{ (cartTotal() + shippingCost) | currency }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <div class="text-center">
+        <p class="text-xl text-gray-600 mb-4">Your session has expired or your cart is empty.</p>
+        <a routerLink="/checkout" class="bg-brand hover:bg-brand-dark text-white font-bold py-3 px-6 rounded-lg transition-colors">
+          Start Checkout
+        </a>
+      </div>
+    }
+  </div>
+</div>

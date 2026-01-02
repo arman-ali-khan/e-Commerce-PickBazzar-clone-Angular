@@ -1,0 +1,140 @@
+<div class="container mx-auto px-4 py-12">
+  <div class="text-center mb-10">
+    <h1 class="text-4xl font-bold text-gray-800">Shop All Products</h1>
+    <p class="text-gray-500 mt-2">Find everything you need, from fresh produce to pantry staples.</p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-4 lg:gap-8">
+    <!-- Filters (Sidebar) -->
+    <aside class="lg:col-span-1 mb-8 lg:mb-0">
+      <div class="sticky top-24">
+        <div class="flex items-center justify-between lg:hidden mb-4">
+            <h2 class="text-xl font-semibold text-gray-700">Filters</h2>
+            <button (click)="toggleFilters()">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+        </div>
+
+        <div class="space-y-6" [class.hidden]="!isFiltersVisible()" [class.lg:block]="true">
+          <!-- Clear Filters Button -->
+          <button (click)="clearFilters()" class="w-full text-sm text-brand font-semibold hover:underline">Clear All Filters</button>
+            
+          <!-- Category Filter -->
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-3 border-b pb-2">Categories</h3>
+            <div class="space-y-2 max-h-60 overflow-y-auto pr-2">
+              @for (category of categories; track category.name) {
+                <label class="flex items-center justify-between text-sm cursor-pointer">
+                  <span class="text-gray-600">{{ category.name }}</span>
+                  <div class="flex items-center">
+                    <span class="text-gray-400 mr-2">{{ category.count }}</span>
+                    <input 
+                      type="checkbox" 
+                      [checked]="selectedCategories().has(category.name)"
+                      (change)="onCategoryToggle(category.name)"
+                      class="h-4 w-4 rounded border-gray-300 text-brand focus:ring-brand">
+                  </div>
+                </label>
+              }
+            </div>
+          </div>
+
+          <!-- Price Filter -->
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-3 border-b pb-2">Price Range</h3>
+            <div class="flex flex-col">
+              <input 
+                type="range" 
+                [min]="0" 
+                [max]="maxPrice()" 
+                [value]="priceRange()"
+                (input)="onPriceChange($event)"
+                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-brand">
+              <span class="text-center text-sm text-gray-600 mt-2">
+                Up to {{ priceRange() | currency:'USD':'symbol':'1.0-0' }}
+              </span>
+            </div>
+          </div>
+          
+          <!-- Deals Filter -->
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-3 border-b pb-2">Deals</h3>
+            <label class="flex items-center justify-between text-sm cursor-pointer">
+                <span class="text-gray-600">On Sale</span>
+                <input 
+                  type="checkbox" 
+                  [checked]="onSaleOnly()"
+                  (change)="onSaleToggle()"
+                  class="h-4 w-4 rounded border-gray-300 text-brand focus:ring-brand">
+            </label>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Products Grid -->
+    <main class="lg:col-span-3">
+      <!-- Sort and Count Header -->
+      <div class="flex flex-col sm:flex-row items-center justify-between mb-6 pb-4 border-b">
+        <p class="text-gray-600 mb-2 sm:mb-0">
+          Showing <span class="font-semibold">{{ paginatedProducts().length }}</span> of <span class="font-semibold">{{ filteredAndSortedProducts().length }}</span> products
+        </p>
+        <select (change)="onSortChange($event)" class="border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-brand text-sm">
+          <option value="name-asc" [selected]="sortBy() === 'name-asc'">Sort by Name: A-Z</option>
+          <option value="name-desc" [selected]="sortBy() === 'name-desc'">Sort by Name: Z-A</option>
+          <option value="price-asc" [selected]="sortBy() === 'price-asc'">Sort by Price: Low to High</option>
+          <option value="price-desc" [selected]="sortBy() === 'price-desc'">Sort by Price: High to Low</option>
+        </select>
+      </div>
+
+      @if (paginatedProducts().length > 0) {
+        <app-product-grid [title]="''" [products]="paginatedProducts()"></app-product-grid>
+
+        <!-- Pagination -->
+        @if (totalPages() > 1) {
+          <nav class="flex items-center justify-center space-x-2 mt-12">
+            <button 
+              (click)="prevPage()" 
+              [disabled]="currentPage() === 1"
+              class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+              Previous
+            </button>
+
+            @for(page of pages(); track $index) {
+              @if (page === '...') {
+                <span class="px-4 py-2 leading-tight text-gray-500 bg-white border border-gray-300">...</span>
+              } @else {
+                <button 
+                  (click)="goToPage(page)"
+                  [class.bg-brand]="currentPage() === page"
+                  [class.text-white]="currentPage() === page"
+                  [class.border-brand]="currentPage() === page"
+                  [class.bg-white]="currentPage() !== page"
+                  [class.text-gray-500]="currentPage() !== page"
+                  [class.border-gray-300]="currentPage() !== page"
+                  class="px-4 py-2 leading-tight border hover:bg-gray-100 hover:text-gray-700">
+                  {{ page }}
+                </button>
+              }
+            }
+
+            <button 
+              (click)="nextPage()" 
+              [disabled]="currentPage() === totalPages()"
+              class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+              Next
+            </button>
+          </nav>
+        }
+      } @else {
+        <div class="text-center py-20">
+            <h3 class="text-2xl font-semibold text-gray-700">No Products Found</h3>
+            <p class="text-gray-500 mt-2">Try adjusting your filters to find what you're looking for.</p>
+            <button (click)="clearFilters()" class="mt-6 bg-brand text-white font-bold py-2 px-6 rounded-lg hover:bg-brand-dark transition-colors">
+                Clear Filters
+            </button>
+        </div>
+      }
+    </main>
+  </div>
+</div>

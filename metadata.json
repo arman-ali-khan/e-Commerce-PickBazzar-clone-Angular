@@ -1,0 +1,5 @@
+{
+  "name": "PickBazar E-commerce Storefront",
+  "description": "A responsive e-commerce storefront inspired by PickBazar, built with Angular and Tailwind CSS. It features a hero carousel, product grids, category navigation, and customer reviews.",
+  "requestFramePermissions": []
+}

@@ -1,0 +1,85 @@
+
+@if (product(); as p) {
+  <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 transition-all duration-300" [class.invisible]="!p" [class.opacity-0]="!p">
+    <!-- Overlay -->
+    <div (click)="close()" class="absolute inset-0 bg-black bg-opacity-50 transition-opacity"></div>
+    
+    <!-- Dialog -->
+    <div (click)="$event.stopPropagation()" class="relative w-full max-w-4xl bg-white rounded-lg shadow-xl flex flex-col md:flex-row transition-all duration-300 transform" [class.scale-95]="!p">
+      <button (click)="close()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 z-10">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+
+      <!-- Image -->
+      <div class="w-full md:w-1/2 aspect-square">
+        <img [ngSrc]="p.imageUrl" [alt]="p.name" width="600" height="600" class="w-full h-full object-cover rounded-t-lg md:rounded-l-lg md:rounded-t-none">
+      </div>
+
+      <!-- Content -->
+      <div class="w-full md:w-1/2 p-6 flex flex-col justify-center">
+        <h2 class="text-2xl font-bold text-gray-800 mb-1">{{ p.name }}</h2>
+        <p class="text-gray-500 mb-3">{{ p.unit }}</p>
+        
+        <div class="flex items-baseline mb-4">
+          <span class="text-brand font-bold text-2xl">{{ currentPrice() | currency }}</span>
+          @if (p.originalPrice) {
+            <span class="text-gray-400 line-through text-md ml-3">{{ p.originalPrice | currency }}</span>
+          }
+        </div>
+        
+        <p class="text-gray-600 text-sm leading-relaxed mb-6 h-24 overflow-y-auto">{{ p.shortDescription }}</p>
+
+        <!-- Variants -->
+        @if (p.variants && p.variants.length > 0) {
+          <div class="mb-6 space-y-4">
+            @for (variant of p.variants; track variant.type) {
+              <div>
+                <h3 class="text-xs font-semibold text-gray-600 mb-2">{{ variant.type }}</h3>
+                <div class="flex flex-wrap gap-2">
+                  @for (option of variant.options; track option.name) {
+                    <button 
+                      (click)="selectVariant(variant.type, option.name)"
+                      [class.bg-brand]="selectedVariants()[variant.type] === option.name"
+                      [class.text-white]="selectedVariants()[variant.type] === option.name"
+                      [class.border-brand]="selectedVariants()[variant.type] === option.name"
+                      [class.bg-white]="selectedVariants()[variant.type] !== option.name"
+                      [class.text-gray-700]="selectedVariants()[variant.type] !== option.name"
+                      [class.border-gray-300]="selectedVariants()[variant.type] !== option.name"
+                      class="px-3 py-1.5 border rounded-md text-xs font-medium transition-colors hover:border-brand">
+                      {{ option.name }}
+                      @if (option.priceModifier) {
+                         <span>(+{{ option.priceModifier | currency }})</span>
+                      }
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <div class="w-full max-w-xs mt-auto">
+          @if (quantityInCart() === 0) {
+            <button 
+              (click)="onAddToCart(p)"
+              [disabled]="!areAllVariantsSelected()"
+              class="w-full bg-brand text-white font-semibold py-2 px-4 rounded-lg flex items-center justify-center space-x-2 transition-colors duration-300"
+              [class.hover:bg-brand-dark]="areAllVariantsSelected()"
+              [class.opacity-50]="!areAllVariantsSelected()"
+              [class.cursor-not-allowed]="!areAllVariantsSelected()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+              <span>{{ areAllVariantsSelected() ? 'Add to Cart' : 'Select Options' }}</span>
+            </button>
+          } @else {
+            <div class="flex items-center justify-between bg-brand text-white font-semibold rounded-lg">
+              <button (click)="decrement(p)" class="px-4 py-2 text-lg hover:bg-brand-dark rounded-l-lg">-</button>
+              <span class="px-4 py-2 text-base font-bold">{{ quantityInCart() }}</span>
+              <button (click)="increment(p)" class="px-4 py-2 text-lg hover:bg-brand-dark rounded-r-lg">+</button>
+            </div>
+          }
+        </div>
+        <a [routerLink]="['/product', p.id]" (click)="close()" class="text-center text-sm text-brand hover:underline mt-4">View Full Details</a>
+      </div>
+    </div>
+  </div>
+}

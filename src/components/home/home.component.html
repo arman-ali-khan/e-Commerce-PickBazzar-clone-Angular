@@ -1,0 +1,38 @@
+
+<app-hero></app-hero>
+    
+<div class="py-12">
+  <div class="container mx-auto px-4">
+    <app-banners></app-banners>
+  </div>
+</div>
+
+<div class="py-12 bg-white">
+  <div class="container mx-auto px-4">
+    <app-category-nav></app-category-nav>
+  </div>
+</div>
+
+<div class="py-12">
+  <div class="container mx-auto px-4">
+    <app-product-grid [title]="'Featured Products'" [products]="featuredProducts"></app-product-grid>
+  </div>
+</div>
+
+<div class="py-12 bg-white">
+    <div class="container mx-auto px-4">
+        <app-product-grid [title]="'Fresh Grocery'" [products]="groceryProducts"></app-product-grid>
+    </div>
+</div>
+
+<div class="py-12">
+    <div class="container mx-auto px-4">
+        <app-product-grid [title]="'Fresh Bakery'" [products]="bakeryProducts"></app-product-grid>
+    </div>
+</div>
+
+<div class="py-12">
+  <div class="container mx-auto px-4">
+    <app-reviews></app-reviews>
+  </div>
+</div>

@@ -1,0 +1,39 @@
+@if (product()) {
+  <div class="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100 group transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+    <div class="relative cursor-pointer" (click)="onQuickView()">
+      <div class="aspect-square w-full overflow-hidden">
+        <img #productImage [ngSrc]="product().imageUrl" [alt]="product().name" width="400" height="400" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+      </div>
+      @if(product().originalPrice) {
+        <div class="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">SALE</div>
+      }
+    </div>
+    <div class="p-4 flex flex-col flex-grow">
+      <p class="text-xs text-gray-500 mb-1">{{ product().unit }}</p>
+      <h3 class="font-semibold text-gray-800 truncate h-6">
+        <a [routerLink]="['/product', product().id]" (click)="$event.stopPropagation()" class="hover:text-brand transition-colors">{{ product().name }}</a>
+      </h3>
+      <div class="flex items-baseline mt-2 mb-4">
+        <span class="text-brand font-bold text-lg">${{ product().price.toFixed(2) }}</span>
+        @if (product().originalPrice) {
+          <span class="text-gray-400 line-through text-sm ml-2">${{ product().originalPrice?.toFixed(2) }}</span>
+        }
+      </div>
+      
+      <div class="mt-auto">
+        @if (quantityInCart() === 0) {
+          <button (click)="onAddToCart()" class="w-full bg-gray-100 text-brand font-semibold py-2 px-4 rounded-lg flex items-center justify-center space-x-2 hover:bg-brand hover:text-white transition-colors duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <span>{{ (product().variants && product().variants.length > 0) ? 'Select Options' : 'Add to Cart' }}</span>
+          </button>
+        } @else {
+          <div class="flex items-center justify-between bg-brand text-white font-semibold rounded-lg">
+            <button (click)="decrement()" class="px-4 py-2 text-lg hover:bg-brand-dark rounded-l-lg">-</button>
+            <span class="px-4 py-2 text-base font-bold">{{ quantityInCart() }}</span>
+            <button (click)="increment()" class="px-4 py-2 text-lg hover:bg-brand-dark rounded-r-lg">+</button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

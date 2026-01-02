@@ -1,0 +1,10 @@
+
+@if (cartCount() > 0) {
+  <button id="floating-cart-icon" (click)="openCart()" class="fixed top-1/2 -translate-y-1/2 right-0 z-40 bg-brand text-white p-3 rounded-l-md shadow-lg flex flex-col items-center space-y-1 transition-transform hover:scale-105">
+    <div class="relative">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <span class="absolute -top-2 -right-2 w-5 h-5 bg-white text-brand text-xs font-bold rounded-full flex items-center justify-center">{{ cartCount() }}</span>
+    </div>
+    <span class="text-sm font-semibold">{{ cartTotal() | currency }}</span>
+  </button>
+}
