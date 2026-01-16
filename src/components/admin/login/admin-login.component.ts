@@ -5,7 +5,6 @@ import { AdminAuthService } from '../../../services/admin-auth.service';
 
 @Component({
   selector: 'app-admin-login',
-  standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './admin-login.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

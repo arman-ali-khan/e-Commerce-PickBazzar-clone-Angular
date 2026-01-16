@@ -4,7 +4,6 @@ import { UserService, Order } from '../../../services/user.service';
 
 @Component({
   selector: 'app-admin-orders',
-  standalone: true,
   imports: [CurrencyPipe],
   templateUrl: './admin-orders.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

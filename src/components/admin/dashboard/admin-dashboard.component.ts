@@ -5,7 +5,6 @@ import { UserService } from '../../../services/user.service';
 
 @Component({
   selector: 'app-admin-dashboard',
-  standalone: true,
   imports: [CurrencyPipe],
   templateUrl: './admin-dashboard.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

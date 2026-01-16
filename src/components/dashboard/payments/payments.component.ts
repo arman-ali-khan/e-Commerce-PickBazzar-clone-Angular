@@ -4,6 +4,7 @@ import { UserService } from '../../../services/user.service';
 @Component({
   selector: 'app-dashboard-payments',
   templateUrl: './payments.component.html',
+  imports: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardPaymentsComponent {

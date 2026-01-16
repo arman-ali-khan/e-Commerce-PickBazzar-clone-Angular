@@ -5,7 +5,6 @@ import * as StoreActions from '../../../store/actions';
 
 @Component({
   selector: 'app-admin-categories',
-  standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './admin-categories.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

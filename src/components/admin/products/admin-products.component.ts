@@ -7,7 +7,6 @@ import { Product } from '../../../models/product.model';
 
 @Component({
   selector: 'app-admin-products',
-  standalone: true,
   imports: [CurrencyPipe, NgOptimizedImage, ReactiveFormsModule],
   templateUrl: './admin-products.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

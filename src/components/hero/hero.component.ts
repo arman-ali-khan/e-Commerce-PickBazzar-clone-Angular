@@ -6,6 +6,7 @@ declare var Swiper: any;
 @Component({
   selector: 'app-hero',
   templateUrl: './hero.component.html',
+  imports: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeroComponent implements AfterViewInit, OnDestroy {

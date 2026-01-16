@@ -4,6 +4,7 @@ import { UserService } from '../../../services/user.service';
 @Component({
   selector: 'app-dashboard-notifications',
   templateUrl: './notifications.component.html',
+  imports: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardNotificationsComponent {

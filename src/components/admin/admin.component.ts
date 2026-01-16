@@ -5,7 +5,6 @@ import { AppStoreService } from '../../store/app-store.service';
 
 @Component({
   selector: 'app-admin',
-  standalone: true,
   imports: [RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.css'],
