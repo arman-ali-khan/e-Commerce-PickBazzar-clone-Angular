@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject, signal, computed, OnDestroy } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
-import { StoreService } from '../../services/store.service';
+import { AppStoreService } from '../../store/app-store.service';
 import { Product } from '../../models/product.model';
 import { ProductGridComponent } from '../product-grid/product-grid.component';
 import { ActivatedRoute } from '@angular/router';
@@ -13,18 +13,20 @@ import { Subscription } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StoreComponent implements OnDestroy {
-  storeService = inject(StoreService);
+  store = inject(AppStoreService);
   private readonly productsPerPage = 8;
   private route = inject(ActivatedRoute);
   private routeSub: Subscription;
 
   // Data
-  allProducts = signal<Product[]>([]);
-  categories = this.storeService.getCategoriesWithCounts();
+  allProducts = this.store.products;
+  categories = this.store.getCategoriesWithCounts();
+  brands = this.store.getBrandsWithCounts();
   maxPrice = signal(0);
   
   // Filter & Sort State
   selectedCategories = signal<Set<string>>(new Set());
+  selectedBrands = signal<Set<string>>(new Set());
   priceRange = signal(0);
   sortBy = signal('name-asc');
   isFiltersVisible = signal(false);
@@ -46,6 +48,12 @@ export class StoreComponent implements OnDestroy {
     if (cats.size > 0) {
       products = products.filter(p => cats.has(p.category));
     }
+    
+    // Brand filtering
+    const brands = this.selectedBrands();
+    if (brands.size > 0) {
+      products = products.filter(p => p.brand && brands.has(p.brand));
+    }
 
     // Price filtering
     const price = this.priceRange();
@@ -55,7 +63,7 @@ export class StoreComponent implements OnDestroy {
     
     // Sorting
     const sort = this.sortBy();
-    return products.sort((a, b) => {
+    return [...products].sort((a, b) => {
         switch(sort) {
             case 'price-asc': return a.price - b.price;
             case 'price-desc': return b.price - a.price;
@@ -103,8 +111,7 @@ export class StoreComponent implements OnDestroy {
   });
 
   constructor() {
-    const products = this.storeService.getAllProducts();
-    this.allProducts.set(products);
+    const products = this.store.getAllProducts();
     const max = Math.ceil(Math.max(...products.map(p => p.price)));
     this.maxPrice.set(max);
     this.priceRange.set(max);
@@ -137,6 +144,19 @@ export class StoreComponent implements OnDestroy {
     });
   }
 
+  onBrandToggle(brand: string) {
+    this.currentPage.set(1);
+    this.selectedBrands.update(brands => {
+        const newBrands = new Set(brands);
+        if(newBrands.has(brand)) {
+            newBrands.delete(brand);
+        } else {
+            newBrands.add(brand);
+        }
+        return newBrands;
+    });
+  }
+
   onSaleToggle() {
     this.currentPage.set(1);
     this.onSaleOnly.update(v => !v);
@@ -156,6 +176,7 @@ export class StoreComponent implements OnDestroy {
 
   clearFilters() {
     this.selectedCategories.set(new Set());
+    this.selectedBrands.set(new Set());
     this.onSaleOnly.set(false);
     this.priceRange.set(this.maxPrice());
     this.currentPage.set(1);

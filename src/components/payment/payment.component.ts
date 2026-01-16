@@ -1,8 +1,10 @@
 import { Component, ChangeDetectionStrategy, inject, signal, OnInit } from '@angular/core';
-import { StoreService } from '../../services/store.service';
+import { AppStoreService } from '../../store/app-store.service';
+import * as StoreActions from '../../store/actions';
 import { CurrencyPipe, NgOptimizedImage } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { CartItem } from '../../models/cart-item.model';
+import { Order } from '../../models/order.model';
 
 @Component({
   selector: 'app-payment',
@@ -11,12 +13,12 @@ import { CartItem } from '../../models/cart-item.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PaymentComponent implements OnInit {
-  storeService = inject(StoreService);
+  store = inject(AppStoreService);
   router = inject(Router);
 
-  cartItems = this.storeService.cartItems;
-  shippingDetails = this.storeService.shippingDetails;
-  cartTotal = this.storeService.cartTotal;
+  cartItems = this.store.cartItems;
+  shippingDetails = this.store.shippingDetails;
+  cartTotal = this.store.cartTotal;
   shippingCost = 5.00;
   
   selectedPaymentMethod = signal('bKash');
@@ -35,8 +37,15 @@ export class PaymentComponent implements OnInit {
   confirmPayment() {
     // In a real app, you would process the payment here with the selected method.
     // For this demo, we'll just proceed to the success page.
+    const order: Order = {
+      items: this.cartItems(),
+      shipping: this.shippingDetails(),
+      subtotal: this.cartTotal(),
+      shippingCost: this.shippingCost,
+      total: this.cartTotal() + this.shippingCost
+    };
     
-    this.storeService.processSuccessfulOrder(this.shippingCost);
+    this.store.dispatch(StoreActions.processSuccessfulOrder(order));
     this.router.navigate(['/order-success']);
   }
 

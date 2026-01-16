@@ -1,8 +1,8 @@
-
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { StoreService } from '../../services/store.service';
+import { AppStoreService } from '../../store/app-store.service';
+import * as StoreActions from '../../store/actions';
 
 @Component({
   selector: 'app-header',
@@ -11,24 +11,31 @@ import { StoreService } from '../../services/store.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HeaderComponent {
-  storeService = inject(StoreService);
+  store = inject(AppStoreService);
   router = inject(Router);
 
-  cartCount = this.storeService.cartCount;
+  cartCount = this.store.cartCount;
+  wishlistCount = this.store.wishlistCount;
+  isMobileMenuOpen = signal(false);
 
   searchForm = new FormGroup({
     query: new FormControl('')
   });
+
+  toggleMobileMenu() {
+    this.isMobileMenuOpen.update(v => !v);
+  }
 
   onSearch() {
     const query = this.searchForm.value.query;
     if (query) {
       this.router.navigate(['/search'], { queryParams: { q: query } });
       this.searchForm.reset();
+      this.isMobileMenuOpen.set(false);
     }
   }
 
   openCart() {
-    this.storeService.openCart();
+    this.store.dispatch(StoreActions.openCart());
   }
 }

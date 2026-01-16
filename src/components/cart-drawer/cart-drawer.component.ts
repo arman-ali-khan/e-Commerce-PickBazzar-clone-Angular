@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
-import { StoreService } from '../../services/store.service';
+import { AppStoreService } from '../../store/app-store.service';
+import * as StoreActions from '../../store/actions';
 import { CurrencyPipe, NgOptimizedImage } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CartItem } from '../../models/cart-item.model';
@@ -11,27 +12,27 @@ import { CartItem } from '../../models/cart-item.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CartDrawerComponent {
-  storeService = inject(StoreService);
+  store = inject(AppStoreService);
   
-  isCartOpen = this.storeService.isCartOpen;
-  cartItems = this.storeService.cartItems;
-  cartTotal = this.storeService.cartTotal;
-  cartCount = this.storeService.cartCount;
+  isCartOpen = this.store.isCartOpen;
+  cartItems = this.store.cartItems;
+  cartTotal = this.store.cartTotal;
+  cartCount = this.store.cartCount;
 
   closeCart() {
-    this.storeService.closeCart();
+    this.store.dispatch(StoreActions.closeCart());
   }
   
   removeFromCart(cartItemId: string) {
-    this.storeService.removeFromCart(cartItemId);
+    this.store.dispatch(StoreActions.removeFromCart(cartItemId));
   }
 
   incrementQuantity(cartItemId: string) {
-    this.storeService.updateQuantity(cartItemId, 1);
+    this.store.dispatch(StoreActions.updateQuantity(cartItemId, 1));
   }
 
   decrementQuantity(cartItemId: string) {
-    this.storeService.updateQuantity(cartItemId, -1);
+    this.store.dispatch(StoreActions.updateQuantity(cartItemId, -1));
   }
 
   getVariantString(item: CartItem): string {

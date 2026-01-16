@@ -1,6 +1,6 @@
-
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
-import { StoreService } from '../../services/store.service';
+import { AppStoreService } from '../../store/app-store.service';
+import * as StoreActions from '../../store/actions';
 import { CurrencyPipe } from '@angular/common';
 
 @Component({
@@ -10,12 +10,12 @@ import { CurrencyPipe } from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FloatingCartButtonComponent {
-  storeService = inject(StoreService);
+  store = inject(AppStoreService);
 
-  cartCount = this.storeService.cartCount;
-  cartTotal = this.storeService.cartTotal;
+  cartCount = this.store.cartCount;
+  cartTotal = this.store.cartTotal;
 
   openCart() {
-    this.storeService.openCart();
+    this.store.dispatch(StoreActions.openCart());
   }
 }

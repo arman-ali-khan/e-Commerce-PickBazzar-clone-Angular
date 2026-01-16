@@ -1,72 +1,116 @@
 <div class="container mx-auto px-4 py-12">
   <div class="text-center mb-10">
-    <h1 class="text-4xl font-bold text-gray-800">Shop All Products</h1>
+    <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Shop All Products</h1>
     <p class="text-gray-500 mt-2">Find everything you need, from fresh produce to pantry staples.</p>
   </div>
 
+  <!-- Mobile filter button -->
+  <div class="lg:hidden mb-6">
+    <button (click)="toggleFilters()" class="w-full flex items-center justify-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-3 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50">
+      <svg class="h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M2.628 1.601C5.028 1.206 7.49 1 10 1s4.973.206 7.372.601a.75.75 0 01.628.74v2.288a2.25 2.25 0 01-.659 1.59l-4.682 4.683a2.25 2.25 0 00-.659 1.59v3.037c0 .684-.31 1.33-.844 1.757l-1.937 1.55A.75.75 0 018 18.25v-5.757a2.25 2.25 0 00-.659-1.59L2.659 6.22A2.25 2.25 0 012 4.629V2.34a.75.75 0 01.628-.74z" clip-rule="evenodd" />
+      </svg>
+      Filters
+    </button>
+  </div>
+
   <div class="grid grid-cols-1 lg:grid-cols-4 lg:gap-8">
-    <!-- Filters (Sidebar) -->
-    <aside class="lg:col-span-1 mb-8 lg:mb-0">
-      <div class="sticky top-24">
-        <div class="flex items-center justify-between lg:hidden mb-4">
-            <h2 class="text-xl font-semibold text-gray-700">Filters</h2>
-            <button (click)="toggleFilters()">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-            </button>
+    <!-- Filters (Sidebar/Drawer) -->
+
+    <!-- Overlay -->
+    @if(isFiltersVisible()) {
+      <div (click)="toggleFilters()" class="fixed inset-0 bg-black bg-opacity-40 z-30 lg:hidden"></div>
+    }
+
+    <aside 
+      class="fixed lg:relative top-0 left-0 h-full w-full max-w-xs bg-white z-40 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:max-w-none lg:bg-transparent lg:col-span-1"
+      [class.translate-x-0]="isFiltersVisible()"
+      [class.-translate-x-full]="!isFiltersVisible()">
+      
+      <div class="flex h-full flex-col">
+        <!-- Mobile Header -->
+        <div class="flex items-center justify-between border-b px-4 py-3 lg:hidden">
+          <h2 class="text-lg font-medium text-gray-900">Filters</h2>
+          <button (click)="toggleFilters()" class="-mr-2 flex h-10 w-10 items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-50">
+            <span class="sr-only">Close menu</span>
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
         </div>
 
-        <div class="space-y-6" [class.hidden]="!isFiltersVisible()" [class.lg:block]="true">
-          <!-- Clear Filters Button -->
-          <button (click)="clearFilters()" class="w-full text-sm text-brand font-semibold hover:underline">Clear All Filters</button>
+        <!-- Filters -->
+        <div class="lg:sticky lg:top-24 h-full lg:h-auto overflow-y-auto lg:overflow-visible">
+          <div class="space-y-6 p-4 lg:p-0">
+            <button (click)="clearFilters()" class="w-full text-sm text-brand font-semibold hover:underline">Clear All Filters</button>
             
-          <!-- Category Filter -->
-          <div>
-            <h3 class="font-semibold text-gray-800 mb-3 border-b pb-2">Categories</h3>
-            <div class="space-y-2 max-h-60 overflow-y-auto pr-2">
-              @for (category of categories; track category.name) {
-                <label class="flex items-center justify-between text-sm cursor-pointer">
-                  <span class="text-gray-600">{{ category.name }}</span>
-                  <div class="flex items-center">
-                    <span class="text-gray-400 mr-2">{{ category.count }}</span>
-                    <input 
-                      type="checkbox" 
-                      [checked]="selectedCategories().has(category.name)"
-                      (change)="onCategoryToggle(category.name)"
-                      class="h-4 w-4 rounded border-gray-300 text-brand focus:ring-brand">
-                  </div>
-                </label>
-              }
+            <!-- Category Filter -->
+            <div>
+              <h3 class="font-semibold text-gray-800 mb-3 border-b pb-2">Categories</h3>
+              <div class="space-y-2 max-h-60 overflow-y-auto pr-2">
+                @for (category of categories; track category.name) {
+                  <label class="flex items-center justify-between text-sm cursor-pointer">
+                    <span class="text-gray-600">{{ category.name }}</span>
+                    <div class="flex items-center">
+                      <span class="text-gray-400 mr-2">{{ category.count }}</span>
+                      <input 
+                        type="checkbox" 
+                        [checked]="selectedCategories().has(category.name)"
+                        (change)="onCategoryToggle(category.name)"
+                        class="h-4 w-4 rounded border-gray-300 text-brand focus:ring-brand">
+                    </div>
+                  </label>
+                }
+              </div>
             </div>
-          </div>
 
-          <!-- Price Filter -->
-          <div>
-            <h3 class="font-semibold text-gray-800 mb-3 border-b pb-2">Price Range</h3>
-            <div class="flex flex-col">
-              <input 
-                type="range" 
-                [min]="0" 
-                [max]="maxPrice()" 
-                [value]="priceRange()"
-                (input)="onPriceChange($event)"
-                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-brand">
-              <span class="text-center text-sm text-gray-600 mt-2">
-                Up to {{ priceRange() | currency:'USD':'symbol':'1.0-0' }}
-              </span>
+            <!-- Brand Filter -->
+            <div>
+              <h3 class="font-semibold text-gray-800 mb-3 border-b pb-2">Brands</h3>
+              <div class="space-y-2 max-h-60 overflow-y-auto pr-2">
+                @for (brand of brands; track brand.name) {
+                  <label class="flex items-center justify-between text-sm cursor-pointer">
+                    <span class="text-gray-600">{{ brand.name }}</span>
+                    <div class="flex items-center">
+                      <span class="text-gray-400 mr-2">{{ brand.count }}</span>
+                      <input 
+                        type="checkbox" 
+                        [checked]="selectedBrands().has(brand.name)"
+                        (change)="onBrandToggle(brand.name)"
+                        class="h-4 w-4 rounded border-gray-300 text-brand focus:ring-brand">
+                    </div>
+                  </label>
+                }
+              </div>
             </div>
-          </div>
-          
-          <!-- Deals Filter -->
-          <div>
-            <h3 class="font-semibold text-gray-800 mb-3 border-b pb-2">Deals</h3>
-            <label class="flex items-center justify-between text-sm cursor-pointer">
-                <span class="text-gray-600">On Sale</span>
+
+            <!-- Price Filter -->
+            <div>
+              <h3 class="font-semibold text-gray-800 mb-3 border-b pb-2">Price Range</h3>
+              <div class="flex flex-col">
                 <input 
-                  type="checkbox" 
-                  [checked]="onSaleOnly()"
-                  (change)="onSaleToggle()"
-                  class="h-4 w-4 rounded border-gray-300 text-brand focus:ring-brand">
-            </label>
+                  type="range" 
+                  [min]="0" 
+                  [max]="maxPrice()" 
+                  [value]="priceRange()"
+                  (input)="onPriceChange($event)"
+                  class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-brand">
+                <span class="text-center text-sm text-gray-600 mt-2">
+                  Up to {{ priceRange() | currency:'USD':'symbol':'1.0-0' }}
+                </span>
+              </div>
+            </div>
+            
+            <!-- Deals Filter -->
+            <div>
+              <h3 class="font-semibold text-gray-800 mb-3 border-b pb-2">Deals</h3>
+              <label class="flex items-center justify-between text-sm cursor-pointer">
+                  <span class="text-gray-600">On Sale</span>
+                  <input 
+                    type="checkbox" 
+                    [checked]="onSaleOnly()"
+                    (change)="onSaleToggle()"
+                    class="h-4 w-4 rounded border-gray-300 text-brand focus:ring-brand">
+              </label>
+            </div>
           </div>
         </div>
       </div>

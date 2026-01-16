@@ -1,6 +1,5 @@
-
 import { Component, ChangeDetectionStrategy, AfterViewInit, ViewChild, ElementRef, OnDestroy, inject } from '@angular/core';
-import { StoreService } from '../../services/store.service';
+import { AppStoreService } from '../../store/app-store.service';
 import { NgOptimizedImage } from '@angular/common';
 
 declare var Swiper: any;
@@ -15,8 +14,8 @@ export class ReviewsComponent implements AfterViewInit, OnDestroy {
   @ViewChild('reviewsSwiper') reviewsSwiper!: ElementRef;
   swiperInstance: any;
 
-  storeService = inject(StoreService);
-  reviews = this.storeService.getReviews();
+  store = inject(AppStoreService);
+  reviews = this.store.getReviews();
   
   // Helper method for templates
   getStarArray(rating: number): number[] {

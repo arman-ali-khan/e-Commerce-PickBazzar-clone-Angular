@@ -1,7 +1,7 @@
 <div class="bg-white">
   <div class="container mx-auto px-4 py-12 lg:py-20">
     @if (product(); as p) {
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
         <!-- Product Image Gallery -->
         <div>
           <div 
@@ -10,7 +10,7 @@
             <img #zoomImage [ngSrc]="currentImage()" [alt]="p.name" width="800" height="800" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-150">
           </div>
           @if(p.images && p.images.length > 1) {
-            <div class="grid grid-cols-5 gap-2">
+            <div class="grid grid-cols-4 sm:grid-cols-5 gap-2">
               @for(image of p.images; track image) {
                 <div 
                   (click)="selectImage(image)"
@@ -27,7 +27,7 @@
         <!-- Product Details -->
         <div class="flex flex-col">
           <a routerLink="/" class="text-sm text-brand hover:underline mb-2 inline-block">Back to products</a>
-          <h1 class="text-4xl font-bold text-gray-800 mb-2">{{ p.name }}</h1>
+          <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">{{ p.name }}</h1>
           <p class="text-gray-500 mb-4">{{ p.unit }}</p>
           
           <div class="flex items-baseline mb-6">
@@ -89,25 +89,41 @@
             </div>
           }
 
-          <div class="w-full max-w-xs mt-auto">
-            @if (quantityInCart() === 0) {
-              <button 
-                (click)="onAddToCart()" 
-                [disabled]="!areAllVariantsSelected()"
-                class="w-full bg-brand text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center space-x-2 transition-colors duration-300 text-lg"
-                [class.hover:bg-brand-dark]="areAllVariantsSelected()"
-                [class.opacity-50]="!areAllVariantsSelected()"
-                [class.cursor-not-allowed]="!areAllVariantsSelected()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                <span>{{ areAllVariantsSelected() ? 'Add to Cart' : 'Select Options' }}</span>
-              </button>
-            } @else {
-              <div class="flex items-center justify-between bg-brand text-white font-semibold rounded-lg">
-                <button (click)="decrement()" class="px-6 py-3 text-2xl hover:bg-brand-dark rounded-l-lg">-</button>
-                <span class="px-6 py-3 text-lg font-bold">{{ quantityInCart() }} in cart</span>
-                <button (click)="increment()" class="px-6 py-3 text-2xl hover:bg-brand-dark rounded-r-lg">+</button>
-              </div>
-            }
+          <div class="mt-auto flex items-stretch gap-4">
+            <div class="flex-grow">
+              @if (quantityInCart() === 0) {
+                <button 
+                  (click)="onAddToCart()" 
+                  [disabled]="!areAllVariantsSelected()"
+                  class="w-full h-full bg-brand text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center space-x-2 transition-colors duration-300 text-lg"
+                  [class.hover:bg-brand-dark]="areAllVariantsSelected()"
+                  [class.opacity-50]="!areAllVariantsSelected()"
+                  [class.cursor-not-allowed]="!areAllVariantsSelected()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                  <span>{{ areAllVariantsSelected() ? 'Add to Cart' : 'Select Options' }}</span>
+                </button>
+              } @else {
+                <div class="flex items-center justify-between bg-brand text-white font-semibold rounded-lg h-full">
+                  <button (click)="decrement()" class="px-6 py-3 text-2xl hover:bg-brand-dark rounded-l-lg">-</button>
+                  <span class="px-6 py-3 text-lg font-bold">{{ quantityInCart() }}</span>
+                  <button (click)="increment()" class="px-6 py-3 text-2xl hover:bg-brand-dark rounded-r-lg">+</button>
+                </div>
+              }
+            </div>
+            <button (click)="toggleWishlist()" class="flex-shrink-0 w-[52px] flex items-center justify-center border-2 rounded-lg transition-colors"
+              [attr.aria-label]="isInWishlist() ? 'Remove from Wishlist' : 'Add to Wishlist'"
+              [class.border-red-500]="isInWishlist()"
+              [class.text-red-500]="isInWishlist()"
+              [class.bg-red-50]="isInWishlist()"
+              [class.border-gray-300]="!isInWishlist()"
+              [class.text-gray-500]="!isInWishlist()"
+              [class.hover:border-red-500]="!isInWishlist()"
+              [class.hover:text-red-500]="!isInWishlist()"
+              [class.hover:bg-red-50]="!isInWishlist()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" [class.fill-current]="isInWishlist()">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -182,6 +198,29 @@
           </form>
         </div>
       </div>
+
+      <!-- Related Products Section -->
+      @if (relatedProducts().length > 0) {
+        <div class="mt-16 pt-12 border-t">
+          <h2 class="text-3xl font-bold text-gray-800 mb-8">You Might Also Like</h2>
+          <div #relatedSwiper class="swiper-container relative -mx-2 px-2">
+            <div class="swiper-wrapper py-2">
+              @for (related of relatedProducts(); track related.id) {
+                <div class="swiper-slide">
+                  <app-product-card [product]="related"></app-product-card>
+                </div>
+              }
+            </div>
+            <!-- Navigation -->
+            <div class="swiper-button-prev-related absolute top-1/2 -translate-y-1/2 left-0 z-10 p-2 bg-white/80 rounded-full shadow cursor-pointer text-gray-600 hover:text-brand transition-colors backdrop-blur-sm -translate-x-1/2 lg:left-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+            </div>
+            <div class="swiper-button-next-related absolute top-1/2 -translate-y-1/2 right-0 z-10 p-2 bg-white/80 rounded-full shadow cursor-pointer text-gray-600 hover:text-brand transition-colors backdrop-blur-sm translate-x-1/2 lg:right-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            </div>
+          </div>
+        </div>
+      }
     } @else {
       <!-- Loading or Not Found State -->
       <div class="text-center py-20">

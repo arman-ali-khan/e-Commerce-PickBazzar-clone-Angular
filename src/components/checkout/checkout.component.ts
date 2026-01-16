@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
-import { StoreService } from '../../services/store.service';
+import { AppStoreService } from '../../store/app-store.service';
+import * as StoreActions from '../../store/actions';
 import { CurrencyPipe, NgOptimizedImage } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -12,11 +13,11 @@ import { CartItem } from '../../models/cart-item.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CheckoutComponent {
-  storeService = inject(StoreService);
+  store = inject(AppStoreService);
   router = inject(Router);
 
-  cartItems = this.storeService.cartItems;
-  cartTotal = this.storeService.cartTotal;
+  cartItems = this.store.cartItems;
+  cartTotal = this.store.cartTotal;
   shippingCost = 5.00;
 
   shippingForm = new FormGroup({
@@ -31,7 +32,7 @@ export class CheckoutComponent {
 
   goToPayment() {
     if (this.shippingForm.valid) {
-      this.storeService.setShippingDetails(this.shippingForm.value);
+      this.store.dispatch(StoreActions.setShippingDetails(this.shippingForm.value));
       this.router.navigate(['/payment']);
     } else {
       this.shippingForm.markAllAsTouched();

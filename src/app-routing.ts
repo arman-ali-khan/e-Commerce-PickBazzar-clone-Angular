@@ -16,11 +16,23 @@ import { DashboardPaymentsComponent } from './components/dashboard/payments/paym
 import { DashboardCartComponent } from './components/dashboard/cart/cart.component';
 import { DashboardNotificationsComponent } from './components/dashboard/notifications/notifications.component';
 import { DashboardAddressesComponent } from './components/dashboard/addresses/addresses.component';
+import { CategoryPageComponent } from './components/category-page/category-page.component';
+import { WishlistComponent } from './components/wishlist/wishlist.component';
+import { authGuard } from './guards/auth.guard';
+import { AdminLoginComponent } from './components/admin/login/admin-login.component';
+import { AdminComponent } from './components/admin/admin.component';
+import { AdminDashboardComponent } from './components/admin/dashboard/admin-dashboard.component';
+import { AdminProductsComponent } from './components/admin/products/admin-products.component';
+import { AdminOrdersComponent } from './components/admin/orders/admin-orders.component';
+import { AdminCategoriesComponent } from './components/admin/categories/admin-categories.component';
+
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'store', component: StoreComponent },
+  { path: 'wishlist', component: WishlistComponent },
   { path: 'categories', component: CategoriesComponent },
+  { path: 'category/:name', component: CategoryPageComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'search', component: SearchComponent },
@@ -39,6 +51,19 @@ export const routes: Routes = [
       { path: 'cart', component: DashboardCartComponent },
       { path: 'notifications', component: DashboardNotificationsComponent },
       { path: 'addresses', component: DashboardAddressesComponent },
+    ]
+  },
+  { path: 'admin/login', component: AdminLoginComponent },
+  {
+    path: 'admin',
+    component: AdminComponent,
+    canActivate: [authGuard],
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: AdminDashboardComponent },
+      { path: 'products', component: AdminProductsComponent },
+      { path: 'orders', component: AdminOrdersComponent },
+      { path: 'categories', component: AdminCategoriesComponent },
     ]
   },
   { path: '**', redirectTo: '' } // Wildcard route for a 404 or redirect

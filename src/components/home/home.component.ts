@@ -1,12 +1,10 @@
-
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { BannersComponent } from '../banners/banners.component';
 import { CategoryNavComponent } from '../category-nav/category-nav.component';
 import { HeroComponent } from '../hero/hero.component';
 import { ProductGridComponent } from '../product-grid/product-grid.component';
 import { ReviewsComponent } from '../reviews/reviews.component';
-import { StoreService } from '../../services/store.service';
-import { Product } from '../../models/product.model';
+import { AppStoreService } from '../../store/app-store.service';
 
 @Component({
   selector: 'app-home',
@@ -21,14 +19,11 @@ import { Product } from '../../models/product.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent {
-  storeService = inject(StoreService);
-  featuredProducts: Product[] = [];
-  groceryProducts: Product[] = [];
-  bakeryProducts: Product[] = [];
+  store = inject(AppStoreService);
 
-  constructor() {
-    this.featuredProducts = this.storeService.getFeaturedProducts();
-    this.groceryProducts = this.storeService.getProductsByCategory('Grocery');
-    this.bakeryProducts = this.storeService.getProductsByCategory('Bakery');
-  }
+  private allProducts = this.store.products;
+
+  featuredProducts = computed(() => this.allProducts().slice(0, 8));
+  groceryProducts = computed(() => this.allProducts().filter(p => p.category === 'Grocery'));
+  bakeryProducts = computed(() => this.allProducts().filter(p => p.category === 'Bakery'));
 }

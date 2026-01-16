@@ -1,39 +1,46 @@
-
-import { Component, ChangeDetectionStrategy, inject, computed, signal, effect, ElementRef, ViewChild, Renderer2 } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed, signal, effect, ElementRef, ViewChild, Renderer2, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CurrencyPipe, NgOptimizedImage } from '@angular/common';
-import { StoreService } from '../../services/store.service';
+import { AppStoreService } from '../../store/app-store.service';
+import * as StoreActions from '../../store/actions';
 import { switchMap } from 'rxjs/operators';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Product, ProductReview } from '../../models/product.model';
+import { Product } from '../../models/product.model';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ProductCardComponent } from '../product-card/product-card.component';
+
+declare var Swiper: any;
 
 @Component({
   selector: 'app-product-detail',
   templateUrl: './product-detail.component.html',
-  imports: [CurrencyPipe, NgOptimizedImage, RouterLink, ReactiveFormsModule],
+  imports: [CurrencyPipe, NgOptimizedImage, RouterLink, ReactiveFormsModule, ProductCardComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProductDetailComponent {
+export class ProductDetailComponent implements OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private renderer = inject(Renderer2);
-  storeService = inject(StoreService);
+  store = inject(AppStoreService);
 
   @ViewChild('zoomImage') zoomImage!: ElementRef<HTMLImageElement>;
-
-  product = toSignal<Product | undefined>(
-    this.route.params.pipe(
-      switchMap(params => {
-        const id = +params['id'];
-        const product = this.storeService.getProductById(id);
-        if (!product) {
-          this.router.navigate(['/']);
+  @ViewChild('relatedSwiper') relatedSwiper!: ElementRef;
+  swiperInstance: any;
+  
+  private productId = toSignal(this.route.params.pipe(switchMap(params => Promise.resolve(+params['id']))));
+  
+  product = computed(() => {
+    const id = this.productId();
+    if (id) {
+        const p = this.store.getProductById(id);
+        if (!p) {
+            this.router.navigate(['/']);
+            return undefined;
         }
-        return Promise.resolve(product);
-      })
-    )
-  );
+        return p;
+    }
+    return undefined;
+  });
   
   currentImage = signal<string | undefined>(undefined);
   isDescriptionExpanded = signal(false);
@@ -54,7 +61,10 @@ export class ProductDetailComponent {
       }
       this.selectedVariants.set({});
       this.isDescriptionExpanded.set(false); // Reset on product change
-    });
+      
+      // Re-initialize swiper when product changes
+      setTimeout(() => this.initializeSwiper(), 50);
+    }, { allowSignalWrites: true });
 
     this.reviewForm = new FormGroup({
       user: new FormControl('', Validators.required),
@@ -65,14 +75,14 @@ export class ProductDetailComponent {
 
   isTruncationNeeded = computed(() => {
     const p = this.product();
-    if (!p || p.longDescription.length <= p.shortDescription.length) return false;
+    if (!p || !p.longDescription || p.longDescription.length <= p.shortDescription.length) return false;
     const words = p.longDescription.split(/\s+/);
     return words.length > this.TRUNCATE_WORD_COUNT;
   });
 
   truncatedLongDescription = computed(() => {
     const p = this.product();
-    if (!p) return '';
+    if (!p || !p.longDescription) return '';
     if (!this.isTruncationNeeded()) return p.longDescription;
     
     const words = p.longDescription.split(/\s+/);
@@ -107,6 +117,12 @@ export class ProductDetailComponent {
     return price;
   });
 
+  isInWishlist = computed(() => {
+    const p = this.product();
+    if (!p) return false;
+    return this.store.wishlist().includes(p.id);
+  });
+
   quantityInCart = computed(() => {
     const p = this.product();
     if (!p || !this.areAllVariantsSelected()) return 0;
@@ -114,7 +130,17 @@ export class ProductDetailComponent {
     const cartItemId = this.getCartItemIdForCurrentSelection();
     if (!cartItemId) return 0;
 
-    return this.storeService.cartItems().find(item => item.cartItemId === cartItemId)?.quantity ?? 0;
+    return this.store.cartItems().find(item => item.cartItemId === cartItemId)?.quantity ?? 0;
+  });
+
+  relatedProducts = computed(() => {
+    const p = this.product();
+    if (!p) {
+      return [];
+    }
+    return this.store.getProductsByCategory(p.category)
+      .filter(related => related.id !== p.id)
+      .slice(0, 10); // Limit to 10 related products
   });
 
   selectImage(imageUrl: string) {
@@ -132,27 +158,34 @@ export class ProductDetailComponent {
   private getCartItemIdForCurrentSelection(): string | null {
      const p = this.product();
      if(!p) return null;
-     return this.storeService.getCartItemId(p.id, this.selectedVariants());
+     return this.store.getCartItemId(p.id, this.selectedVariants());
+  }
+
+  toggleWishlist() {
+    const p = this.product();
+    if (p) {
+      this.store.dispatch(StoreActions.toggleWishlist(p.id));
+    }
   }
 
   onAddToCart() {
     const p = this.product();
     if (p && this.areAllVariantsSelected()) {
-      this.storeService.addToCart(p, this.selectedVariants());
+      this.store.dispatch(StoreActions.addToCart(p, this.selectedVariants()));
     }
   }
 
   increment() {
     const cartItemId = this.getCartItemIdForCurrentSelection();
     if (cartItemId) {
-      this.storeService.updateQuantity(cartItemId, 1);
+      this.store.dispatch(StoreActions.updateQuantity(cartItemId, 1));
     }
   }
   
   decrement() {
     const cartItemId = this.getCartItemIdForCurrentSelection();
     if (cartItemId) {
-      this.storeService.updateQuantity(cartItemId, -1);
+      this.store.dispatch(StoreActions.updateQuantity(cartItemId, -1));
     }
   }
   
@@ -170,7 +203,7 @@ export class ProductDetailComponent {
     }
     const p = this.product();
     if (p) {
-      this.storeService.addProductReview(p.id, this.reviewForm.value);
+      this.store.dispatch(StoreActions.addProductReview(p.id, this.reviewForm.value));
       this.reviewForm.reset();
       this.selectedRating.set(0);
       this.reviewForm.controls['rating'].setValue(0);
@@ -178,8 +211,9 @@ export class ProductDetailComponent {
   }
 
   handleMouseMove(event: MouseEvent) {
+    if (!this.zoomImage?.nativeElement?.parentElement) return;
     const imgEl = this.zoomImage.nativeElement;
-    const { left, top, width, height } = imgEl.parentElement!.getBoundingClientRect();
+    const { left, top, width, height } = imgEl.parentElement.getBoundingClientRect();
     const x = ((event.clientX - left) / width) * 100;
     const y = ((event.clientY - top) / height) * 100;
     this.renderer.setStyle(imgEl, 'transform-origin', `${x}% ${y}%`);
@@ -187,4 +221,38 @@ export class ProductDetailComponent {
   
   getStarArray(rating: number): any[] { return Array(rating); }
   getEmptyStarArray(rating: number): any[] { return Array(5 - rating); }
+
+  initializeSwiper() {
+    if (this.swiperInstance) {
+      this.swiperInstance.destroy(true, true);
+      this.swiperInstance = null;
+    }
+    
+    if (this.relatedProducts().length > 0 && this.relatedSwiper?.nativeElement) {
+      this.swiperInstance = new Swiper(this.relatedSwiper.nativeElement, {
+        slidesPerView: 2,
+        spaceBetween: 16,
+        navigation: {
+          nextEl: '.swiper-button-next-related',
+          prevEl: '.swiper-button-prev-related',
+        },
+        breakpoints: {
+          640: {
+            slidesPerView: 3,
+            spaceBetween: 20,
+          },
+          1024: {
+            slidesPerView: 4,
+            spaceBetween: 24,
+          },
+        },
+      });
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.swiperInstance) {
+      this.swiperInstance.destroy(true, true);
+    }
+  }
 }

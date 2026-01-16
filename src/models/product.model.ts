@@ -1,4 +1,3 @@
-
 export interface ProductVariantOption {
   name: string;
   priceModifier?: number;
@@ -24,8 +23,10 @@ export interface Product {
   imageUrl: string; // Will be used as the primary thumbnail
   images: string[];
   unit: string;
+  stock: number;
   shortDescription: string;
   longDescription: string;
+  brand?: string;
   variants?: ProductVariant[];
   reviews?: ProductReview[];
 }

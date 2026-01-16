@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { StoreService } from '../../services/store.service';
+import { AppStoreService } from '../../store/app-store.service';
 
 @Component({
   selector: 'app-categories',
@@ -9,6 +9,6 @@ import { StoreService } from '../../services/store.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CategoriesComponent {
-  storeService = inject(StoreService);
+  storeService = inject(AppStoreService);
   categories = this.storeService.getCategories();
 }

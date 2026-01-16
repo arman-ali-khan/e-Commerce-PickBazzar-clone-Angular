@@ -1,7 +1,8 @@
 import { Component, ChangeDetectionStrategy, input, inject, computed, ViewChild, ElementRef, Renderer2, Inject } from '@angular/core';
 import { DOCUMENT, NgOptimizedImage } from '@angular/common';
 import { Product } from '../../models/product.model';
-import { StoreService } from '../../services/store.service';
+import { AppStoreService } from '../../store/app-store.service';
+import * as StoreActions from '../../store/actions';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -12,11 +13,17 @@ import { RouterLink } from '@angular/router';
 })
 export class ProductCardComponent {
   product = input.required<Product>();
-  storeService = inject(StoreService);
+  store = inject(AppStoreService);
   renderer = inject(Renderer2);
   document = inject(DOCUMENT);
 
   @ViewChild('productImage') productImage!: ElementRef<HTMLImageElement>;
+
+  isInWishlist = computed(() => {
+    const p = this.product();
+    if (!p) return false;
+    return this.store.wishlist().includes(p.id);
+  });
 
   quantityInCart = computed(() => {
     const p = this.product();
@@ -26,8 +33,15 @@ export class ProductCardComponent {
       return 0;
     }
     const cartItemId = String(p.id); // For non-variant products, cartItemId is the stringified id
-    return this.storeService.cartItems().find(item => item.cartItemId === cartItemId)?.quantity ?? 0;
+    return this.store.cartItems().find(item => item.cartItemId === cartItemId)?.quantity ?? 0;
   });
+
+  toggleWishlist() {
+    const p = this.product();
+    if (p) {
+      this.store.dispatch(StoreActions.toggleWishlist(p.id));
+    }
+  }
 
   onAddToCart() {
     const p = this.product();
@@ -39,8 +53,8 @@ export class ProductCardComponent {
       return;
     }
 
-    const isFirstItem = this.storeService.cartCount() === 0;
-    this.storeService.addToCart(p);
+    const isFirstItem = this.store.cartCount() === 0;
+    this.store.dispatch(StoreActions.addToCart(p));
     
     // Defer animation to next render cycle if the floating button needs to appear
     if (isFirstItem) {
@@ -51,17 +65,17 @@ export class ProductCardComponent {
   }
 
   onQuickView() {
-    this.storeService.openQuickView(this.product());
+    this.store.dispatch(StoreActions.openQuickView(this.product()));
   }
   
   increment() {
     const cartItemId = String(this.product().id);
-    this.storeService.updateQuantity(cartItemId, 1);
+    this.store.dispatch(StoreActions.updateQuantity(cartItemId, 1));
   }
   
   decrement() {
     const cartItemId = String(this.product().id);
-    this.storeService.updateQuantity(cartItemId, -1);
+    this.store.dispatch(StoreActions.updateQuantity(cartItemId, -1));
   }
 
   private flyToCart() {

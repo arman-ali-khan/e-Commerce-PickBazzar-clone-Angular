@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, inject, OnInit } from '@angular/core';
-import { StoreService } from '../../services/store.service';
+import { AppStoreService } from '../../store/app-store.service';
 import { CurrencyPipe, NgOptimizedImage } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { CartItem } from '../../models/cart-item.model';
@@ -11,10 +11,10 @@ import { CartItem } from '../../models/cart-item.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrderSuccessComponent implements OnInit {
-  storeService = inject(StoreService);
+  store = inject(AppStoreService);
   router = inject(Router);
 
-  lastOrder = this.storeService.lastSuccessfulOrder;
+  lastOrder = this.store.lastSuccessfulOrder;
 
   ngOnInit() {
     // Redirect if user lands here without a completed order

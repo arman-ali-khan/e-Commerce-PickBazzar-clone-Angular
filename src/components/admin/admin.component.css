@@ -1,0 +1,5 @@
+/* Custom styles for the admin sidebar active link */
+a.active {
+  background-color: #009f7f; /* brand color */
+  color: white;
+}
